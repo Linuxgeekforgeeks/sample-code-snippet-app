@@ -2,22 +2,30 @@
 
 import { useState, useEffect } from 'react';
 import CodeSnippetForm from './CodeSnippetForm';
-import CodeSnippetList from "./CodeSnippetList";
+import CodeSnippetList from './CodeSnippetList';
 
 export default function Dashboard() {
   const [codeSnippets, setCodeSnippets] = useState([]);
 
   useEffect(() => {
-    const savedSnippets = JSON.parse(localStorage.getItem('codeSnippets')) || [];
-    setCodeSnippets(savedSnippets);
+    async function fetchSnippets() {
+      const response = await fetch('/api/snippets');
+      const snippets = await response.json();
+      setCodeSnippets(snippets);
+    }
+    fetchSnippets();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem('codeSnippets', JSON.stringify(codeSnippets));
-  }, [codeSnippets]);
-
-  const addSnippet = (newSnippet) => {
-    setCodeSnippets((prev) => [...prev, { ...newSnippet, id: prev.length + 1 }]);
+  const addSnippet = async (newSnippet) => {
+    const response = await fetch('/api/snippets', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newSnippet),
+    });
+    const createdSnippet = await response.json();
+    setCodeSnippets((prev) => [...prev, createdSnippet]);
   };
 
   return (
