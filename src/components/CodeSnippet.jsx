@@ -4,16 +4,28 @@
 import { useState, useEffect } from 'react';
 import { HeartIcon } from '@heroicons/react/24/outline'; // or '@heroicons/react/24/solid'
 
+const users = [
+  { name: 'Alice', avatar: 'https://i.pravatar.cc/100?img=1' },
+  { name: 'Bob', avatar: 'https://i.pravatar.cc/100?img=2' },
+  { name: 'Charlie', avatar: 'https://i.pravatar.cc/100?img=3' },
+  { name: 'Diana', avatar: 'https://i.pravatar.cc/100?img=4' },
+];
+
+function getRandomUser() {
+  return users[Math.floor(Math.random() * users.length)];
+}
+
 function CodeSnippet({ demoUrl, videoUrl, code, description }) {
   const [activeTab, setActiveTab] = useState('code');
   const [copySuccess, setCopySuccess] = useState('');
   const [liked, setLiked] = useState(false);
   const [comments, setComments] = useState([
-    "This code is fantastic! Helped me a lot.",
-    "Nice implementation, but can you explain the logic behind it?",
-    "Great work! It would be helpful if you add more examples.",
+    { text: "This code is fantastic! Helped me a lot.", user: getRandomUser() },
+    { text: "Nice implementation, but can you explain the logic behind it?", user: getRandomUser() },
+    { text: "Great work! It would be helpful if you add more examples.", user: getRandomUser() },
   ]);
   const [newComment, setNewComment] = useState('');
+  const [newCommentUser, setNewCommentUser] = useState(getRandomUser());
 
   const handleCopy = () => {
     navigator.clipboard.writeText(code)
@@ -31,7 +43,7 @@ function CodeSnippet({ demoUrl, videoUrl, code, description }) {
 
   const handleAddComment = () => {
     if (newComment.trim()) {
-      setComments([...comments, newComment]);
+      setComments([...comments, { text: newComment, user: getRandomUser() }]);
       setNewComment('');
     }
   };
@@ -132,8 +144,12 @@ function CodeSnippet({ demoUrl, videoUrl, code, description }) {
             </button>
             <div className="mt-4 space-y-2">
               {comments.map((comment, index) => (
-                <div key={index} className="p-4 bg-gray-100 border rounded">
-                  <p>{comment}</p>
+                <div key={index} className="p-4 bg-gray-100 border rounded flex items-center space-x-4">
+                  <img src={comment.user.avatar} alt={comment.user.name} className="w-10 h-10 rounded-full" />
+                  <div>
+                    <p className="font-semibold">{comment.user.name}</p>
+                    <p>{comment.text}</p>
+                  </div>
                 </div>
               ))}
             </div>
